@@ -1,0 +1,61 @@
+---
+# task file for role-age_binaries
+#
+
+- name: Ensure latest version is detected
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/FiloSottile/age/releases/latest
+    dest: /var/tmp/age_latest_release_info
+    status_code:
+      - 200
+      - 304
+    mode: '0644'
+  check_mode: false
+
+- name: Ensure age_latest_release_info is registered
+  ansible.builtin.command: cat {{ location_src }}/age_latest_release_info
+  register: age_latest_release_info
+  changed_when: "'tag_name' not in age_latest_release_info.stdout"
+  check_mode: false
+
+- name: Ensure data is interpreted as json
+  ansible.builtin.set_fact:
+    jsondata: "{{ age_latest_release_info.stdout | from_json }}"
+  check_mode: false
+
+- name: Ensure tag_name attribute value is extracted which contains latest version
+  ansible.builtin.set_fact:
+    version: "{{ jsondata | json_query(jmesquery) }}"
+  vars:
+    jmesquery: 'tag_name'
+
+- name: Ensure version is displayed
+  ansible.builtin.debug:
+    var: version
+
+- name: "Ensure latest version of age is saved in {{ location_src }}/age-{{ version }}-linux-amd64.tar.gz"
+  ansible.builtin.uri:
+    url: "https://github.com/FiloSottile/age/releases/latest/download/age-{{ version }}-linux-amd64.tar.gz"
+    dest: "{{ location_src }}/age-{{ version }}-linux-amd64.tar.gz"
+    mode: '0644'
+    status_code:
+      - 200
+      - 304
+
+- name: Ensure tarball is extracted
+  ansible.builtin.unarchive:
+    src: "{{ location_src }}/age-{{ version }}-linux-amd64.tar.gz"
+    remote_src: true
+    dest: /var/tmp/
+
+- name: Ensure binaries are installed
+  ansible.builtin.copy:
+    src: "{{ location_src }}/age/{{ item }}"
+    dest: "{{ location_dst }}"
+    remote_src: true
+    mode: '0755'
+  loop:
+    - age
+    - age-keygen
+
+...

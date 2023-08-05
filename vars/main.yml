@@ -1,0 +1,5 @@
+---
+# vars file for ansible-role_age_binaries
+
+location_src: /var/tmp
+location_dst: /usr/local/bin
