@@ -1,20 +1,21 @@
 Role Name
 =========
 
-have *age* binaries installed
+- have *age* binaries installed for RedHat family
+- have *age* package installed for Debian family, hmm you won't need an ansible role for that ;-)
 
 Galaxy : yes
 
 Requirements
 ------------
 
-RedHat compatible 7 or higher, CentOS, Almalinux, Rockylinux.
+RedHat/Debian
 
 Role Variables
 --------------
 
-*location_src*: temporary directory, defaults to /var/tmp
-*location_dst*: install directory, defaults to /usr/local/bin/ 
+- *location_src*: temporary directory, defaults to /var/tmp
+- *location_dst*: install directory, defaults to /usr/local/bin/
 
 Dependencies
 ------------
